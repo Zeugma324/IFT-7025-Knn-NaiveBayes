@@ -20,7 +20,6 @@ En gros, vous allez :
 # Initialisez vos paramètres
 
 train_ratio = 0.7
-train, train_labels, test, test_labels = load_datasets.load_iris_dataset(train_ratio)
 
 
 
@@ -32,7 +31,7 @@ classifier.train(train, train_labels)
 
 
 # Charger/lire les datasets
-
+train, train_labels, test, test_labels = load_datasets.load_iris_dataset(train_ratio)
 
 
 
