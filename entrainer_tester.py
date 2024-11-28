@@ -66,6 +66,8 @@ print(f"""F1_score : {train_results[3]}""")
 print(f"confusion_matrix : \n{train_results[4]}")
 
 knn_train_results = knn.evaluate(train, train_labels)
+
+print("")
 print("Résultats d'Entraînement du KNN:")
 print("--------------------------------")
 print(f"confusion_matrix : \n{knn_train_results[1]}")
@@ -90,16 +92,29 @@ IMPORTANT :
 test_results = classifier.evaluate(test, test_labels)
 
 print("")
-print("Résultats :")
+print("Résultats de Test du Classificateur Naïf Bayésien:")
+print("---------------------------------------------------------")
 print(f"""accuracy : {test_results[0]}""")
 print(f"""precision : {test_results[1]}""")
 print(f"""recall : {test_results[2]}""")
 print(f"""F1_score : {test_results[3]}""")
 print(f"confusion_matrix : \n{test_results[4]}")
 
+knn_test_results = knn.evaluate(test, test_labels)
+
+print("")
+print("Résultats de Test du KNN:")
+print("--------------------------------")
+print(f"confusion_matrix : \n{knn_test_results[1]}")
+print(f"""accuracy : {knn_test_results[2]}""")
+print(f"""precision : {knn_test_results[3]}""")
+print(f"""recall : {knn_test_results[4]}""")
+print(f"""F1_score : {knn_test_results[5]}""")
+
 #Comparaison
 
 from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 
@@ -124,3 +139,22 @@ print(f"Macro-Rappel : {recall}")
 print(f"Macro-F1-score : {f1}")
 print("Matrice de confusion :")
 print(conf_matrix)
+
+sklearn_knn = KNeighborsClassifier(n_neighbors=3)
+sklearn_knn.fit(X_train, y_train)
+knn_y_pred = sklearn_knn.predict(X_test)
+
+knn_accuracy = accuracy_score(y_test, knn_y_pred)
+knn_precision = precision_score(y_test, knn_y_pred, average='macro')
+knn_recall = recall_score(y_test, knn_y_pred, average='macro')
+knn_f1 = f1_score(y_test, knn_y_pred, average='macro')
+knn_conf_matrix = confusion_matrix(y_test, knn_y_pred)
+
+print("")
+print("=== Métriques pour le modèle KNN de sklearn ===")
+print(f"Accuracy : {knn_accuracy}")
+print(f"Macro-Précision : {knn_precision}")
+print(f"Macro-Rappel : {knn_recall}")
+print(f"Macro-F1-score : {knn_f1}")
+print("Matrice de confusion :")
+print(knn_conf_matrix)

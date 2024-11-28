@@ -28,7 +28,7 @@ class Knn: #nom de la class à changer
 		self.train_labels = np.array([])
 		self.k = 3
 	
-	def is_float(string):
+	def is_float(self, string):
 		"""
 		Permet de vérifier si une chaîne de caractères
 		est un nombre à virgule
@@ -133,6 +133,7 @@ class Knn: #nom de la class à changer
 		# Sélectionner la classe la plus présente parmi les K plus proches voisins
 		
 		# Séparer les données catégorielles des données numériques
+		x = np.array([list(x)])
 		cat_x, num_x = self.detect_cat(x)
 		nb_cat_features = len(cat_x)
 		nb_num_features = len(num_x)
@@ -143,18 +144,23 @@ class Knn: #nom de la class à changer
 			)
 		# On calcule maintenant la distance pour les variables catégorielles
 		# On ajoute 1 à la distance si les valeurs sont équivalentes
-		matching_coef = np.array(
-			[
+		# S'il n'y a pas de variable catégorielles, matching coefficient
+		# sera un tableau de zéros
+		if nb_cat_features == 0:
+			matching_coef = np.zeros((len(self.num_train_data)))
+		else:
+			matching_coef = np.array(
 				[
-					1 if cat_x[i] == data[i] else 0
-					for i in range(nb_cat_features)
+					[
+						1 if cat_x[i] == data[i] else 0
+						for i in range(nb_cat_features)
+						]
+					for data in self.cat_train_data
 					]
-				for data in self.cat_train_data
-				]
-			)
-		matching_coef = np.sum(
-			matching_coef, axis= 1, keepdims = True
-			)/nb_cat_features
+				)
+			matching_coef = np.sum(
+				matching_coef, axis= 1, keepdims = True
+				)/nb_cat_features
 		# On fait la somme pondérée des distances numériques et catégorielles
 		# pour obtenir une distance globale entre les instances
 		weighted_eucl_dist = unsorted_eucl_dist *\
@@ -170,7 +176,7 @@ class Knn: #nom de la class à changer
 		sorted_dist.sort()
 		# On ne garde que les labels des k plus proches voisins
 		k_nearest_labels = [
-			self.train_labels[np.where(unsorted_eucl_dist == dist)[0][0]]
+			self.train_labels[np.where(unsorted_dist == dist)[0][0]]
 			for dist in sorted_dist[:self.k]
 			]
 		# Trouver la classe la plus présente parmi les k plus proches voisins
@@ -210,14 +216,18 @@ class Knn: #nom de la class à changer
 		precision = np.zeros(nb_labels)
 		for i in range(nb_labels):
 			precision[i] = confusion_matrix[i][i]/np.sum(confusion_matrix[i])
+		mean_precision = np.mean(precision)
 		# Calcul du rappel
 		recall = np.zeros(nb_labels)
 		for i in range(nb_labels):
 			recall[i] = confusion_matrix[i][i]/np.sum(confusion_matrix[:, i])
+		mean_recall = np.mean(recall)
 		# Calcul du F1-score
 		f1_score = np.zeros(nb_labels)
 		for i in range(nb_labels):
 			f1_score[i] = 2*precision[i]*recall[i]/(precision[i] + recall[i])
+		mean_f1_score = np.mean(f1_score)
 		
 		return (predicted_labels, confusion_matrix,
-		  		accuracy, precision, recall, f1_score)
+		  		accuracy, mean_precision, mean_recall,
+				mean_f1_score)
