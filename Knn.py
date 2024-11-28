@@ -9,6 +9,7 @@ se fera en utilisant les méthodes train, predict et evaluate de votre code.
 """
 
 import numpy as np
+import random
 
 
 # le nom de votre classe
@@ -26,7 +27,7 @@ class Knn: #nom de la class à changer
 		self.num_train_data = np.array([])
 		self.cat_train_data = np.array([])
 		self.train_labels = np.array([])
-		self.k = 3
+		self.k = [1, 10]
 	
 	def is_float(self, string):
 		"""
@@ -98,39 +99,28 @@ class Knn: #nom de la class à changer
 			num_data = np.array(num_data).T
 		
 		return cat_data, num_data
-		
-	def train(self, train, train_labels): #vous pouvez rajouter d'autres attributs au besoin
+
+	def predict(self, x, train, train_labels, k):
 		"""
-		C'est la méthode qui va entrainer votre modèle,
+		Prédire la classe d'un exemple x donné en entrée
+		exemple est de taille 1xm
+
 		train est une matrice de type Numpy et de taille nxm, avec 
 		n : le nombre d'exemple d'entrainement dans le dataset
 		m : le mobre d'attribus (le nombre de caractéristiques)
 		
 		train_labels : est une matrice numpy de taille nx1
-		
-		vous pouvez rajouter d'autres arguments, il suffit juste de
-		les expliquer en commentaire
-		
-		"""
-        # Pour le KNN il n'y a pas de phase d'entraînement
-		# le modèle garde juste les instances et les labels d'entrainement
-		# pour les utiliser lors de la phase de prédiction
-
-		# Séparer les données catégorielles des données numériques et
-		# les sauver dans les attributs de l'objet
-		self.cat_train_data, self.num_train_data = self.detect_cat(train)
-		self.train_labels = train_labels
-
-
-	def predict(self, x):
-		"""
-		Prédire la classe d'un exemple x donné en entrée
-		exemple est de taille 1xm
 		"""
 		# Passer sur ttes les instances
 		# Calculer la diff avec ttes les autres instances
 		# Trouver les k plus proches
 		# Sélectionner la classe la plus présente parmi les K plus proches voisins
+		
+		# Pour les données d'entraîneùent: séparer les données
+		# catégorielles des données numériques et les sauver
+		# dans les attributs de l'objet
+		self.cat_train_data, self.num_train_data = self.detect_cat(train)
+		self.train_labels = train_labels
 		
 		# Séparer les données catégorielles des données numériques
 		x = np.array([list(x)])
@@ -177,7 +167,7 @@ class Knn: #nom de la class à changer
 		# On ne garde que les labels des k plus proches voisins
 		k_nearest_labels = [
 			self.train_labels[np.where(unsorted_dist == dist)[0][0]]
-			for dist in sorted_dist[:self.k]
+			for dist in sorted_dist[:k]
 			]
 		# Trouver la classe la plus présente parmi les k plus proches voisins
 		# On utilise la méthode des votes majoritaires
@@ -185,9 +175,74 @@ class Knn: #nom de la class à changer
 		most_frequent_label = unique_labels[np.argmax(counts)]
 
 		return most_frequent_label
+	
+	def train(self, train, train_labels): #vous pouvez rajouter d'autres attributs au besoin
+		"""
+		C'est la méthode qui va entrainer votre modèle,
+		train est une matrice de type Numpy et de taille nxm, avec 
+		n : le nombre d'exemple d'entrainement dans le dataset
+		m : le mobre d'attribus (le nombre de caractéristiques)
+		
+		train_labels : est une matrice numpy de taille nx1
+		
+		vous pouvez rajouter d'autres arguments, il suffit juste de
+		les expliquer en commentaire
+		
+		"""
+        # Pour le KNN il n'y a pas de phase d'entraînement
+		# le modèle garde juste les instances et les labels d'entrainement
+		# pour les utiliser lors de la phase de prédiction
+
+		# Utiliser la validation croisée pour déterminer le bon nombre
+		# de voisins
+		val_errors = []
+		for k in range (self.k[0], self.k[1] + 1):
+			# On divise les données en 10 parties
+			nb_folds = 10
+			fold_size = len(train)//nb_folds
+			# On divise les données et les labels en 10 parties
+			folded_data = [
+				train[i*fold_size:(i+1)*fold_size]
+				for i in range(nb_folds)
+				]
+			folded_labels = [
+				train_labels[i*fold_size:(i+1)*fold_size]
+				for i in range(nb_folds)
+				]
+			accuracies = []
+			for fold in range(nb_folds):
+				# On utilise 9 parties pour l'entrainement et 1 pour la validation
+				cv_train_data = np.concatenate(
+					folded_data[:fold] + folded_data[fold + 1:]
+					)
+				cv_train_labels = np.concatenate(
+					folded_labels[:fold] + folded_labels[fold + 1:]
+					)
+				val_data = folded_data[fold]
+				val_labels = folded_labels[fold]
+				# On prédit les classes pour les données de validation
+				# et on calcule l'accuracy
+				predicted_labels = [
+					self.predict(x, cv_train_data, cv_train_labels, k)
+					for x in val_data
+					]
+				accuracy = np.sum(predicted_labels == val_labels)/len(val_labels)
+				accuracies.append(accuracy)
+			# On calcule l'erreur de validation pour le nombre de voisins k
+			val_error = 1 - np.mean(accuracies)
+			val_errors.append(val_error)
+		# On choisit le nombre de voisins qui minimise l'erreur de validation
+		self.k = np.argmin(val_errors) + 1
+
+		# Afficher les erreurs de validation pour chaque nombre de voisins
+		# et le nombre de voisins choisi
+		print("Erreurs de validation pour chaque nombre de voisins:")
+		for i in range(len(val_errors)):
+			print(f"Pour {i + 1} voisins: {val_errors[i]}")
+		print(f"Nombre de voisins choisi: {self.k}")
 
         
-	def evaluate(self, X, y):
+	def evaluate(self, X, y, train, train_labels):
 		"""
 		c'est la méthode qui va evaluer votre modèle sur les données X
 		l'argument X est une matrice de type Numpy et de taille nxm, avec 
@@ -199,7 +254,10 @@ class Knn: #nom de la class à changer
 		vous pouvez rajouter d'autres arguments, il suffit juste de
 		les expliquer en commentaire
 		"""
-		predicted_labels = [self.predict(x) for x in X]
+		predicted_labels = [
+			self.predict(x, train, train_labels, self.k)
+			for x in X
+			]
 		# Calcul de la matrice de confusion
 		nb_test_labels = len(set(y))
 		nb_train_labels = len(set(self.train_labels))

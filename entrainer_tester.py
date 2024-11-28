@@ -39,7 +39,6 @@ train, train_labels, test, test_labels = load_datasets.load_iris_dataset(train_r
 
 # Entrainez votre classifieur
 classifier.train(train, train_labels)
-knn.train(train, train_labels)
 
 """
 Après avoir fait l'entrainement, évaluez votre modèle sur 
@@ -65,16 +64,10 @@ print(f"""recall : {train_results[2]}""")
 print(f"""F1_score : {train_results[3]}""")
 print(f"confusion_matrix : \n{train_results[4]}")
 
-knn_train_results = knn.evaluate(train, train_labels)
-
 print("")
 print("Résultats d'Entraînement du KNN:")
 print("--------------------------------")
-print(f"confusion_matrix : \n{knn_train_results[1]}")
-print(f"""accuracy : {knn_train_results[2]}""")
-print(f"""precision : {knn_train_results[3]}""")
-print(f"""recall : {knn_train_results[4]}""")
-print(f"""F1_score : {knn_train_results[5]}""")
+knn.train(train, train_labels)
 
 # Tester votre classifieur
 
@@ -100,7 +93,9 @@ print(f"""recall : {test_results[2]}""")
 print(f"""F1_score : {test_results[3]}""")
 print(f"confusion_matrix : \n{test_results[4]}")
 
-knn_test_results = knn.evaluate(test, test_labels)
+knn_test_results = knn.evaluate(
+    test, test_labels, train, train_labels
+    )
 
 print("")
 print("Résultats de Test du KNN:")
