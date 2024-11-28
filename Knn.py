@@ -26,7 +26,7 @@ class Knn: #nom de la class à changer
 		self.num_train_data = np.array([])
 		self.cat_train_data = np.array([])
 		self.train_labels = np.array([])
-		self.k = [1, 10]
+		self.k = 3
 	
 	def is_float(string):
 		"""
@@ -122,7 +122,7 @@ class Knn: #nom de la class à changer
 		self.train_labels = train_labels
 
 
-	def predict(self, x, k):
+	def predict(self, x):
 		"""
 		Prédire la classe d'un exemple x donné en entrée
 		exemple est de taille 1xm
@@ -171,7 +171,7 @@ class Knn: #nom de la class à changer
 		# On ne garde que les labels des k plus proches voisins
 		k_nearest_labels = [
 			self.train_labels[np.where(unsorted_eucl_dist == dist)[0][0]]
-			for dist in sorted_dist[:k]
+			for dist in sorted_dist[:self.k]
 			]
 		# Trouver la classe la plus présente parmi les k plus proches voisins
 		# On utilise la méthode des votes majoritaires
@@ -193,7 +193,7 @@ class Knn: #nom de la class à changer
 		vous pouvez rajouter d'autres arguments, il suffit juste de
 		les expliquer en commentaire
 		"""
-		predicted_labels = [self.predict(x, 3) for x in X]
+		predicted_labels = [self.predict(x) for x in X]
 		# Calcul de la matrice de confusion
 		nb_test_labels = len(set(y))
 		nb_train_labels = len(set(self.train_labels))

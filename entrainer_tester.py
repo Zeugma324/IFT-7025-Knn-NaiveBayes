@@ -3,6 +3,7 @@ import sys
 import load_datasets
 import NaiveBayes # importer la classe du classifieur bayesien
 #import Knn # importer la classe du Knn
+from Knn import Knn
 #importer d'autres fichiers et classes si vous en avez développés
 
 
@@ -26,7 +27,8 @@ train_ratio = 0.7
 # Initialisez/instanciez vos classifieurs avec leurs paramètres
 
 classifier = NaiveBayes.BayesNaif()
-classifier.train(train, train_labels)
+knn = Knn()
+
 
 
 
@@ -36,7 +38,8 @@ train, train_labels, test, test_labels = load_datasets.load_iris_dataset(train_r
 
 
 # Entrainez votre classifieur
-
+classifier.train(train, train_labels)
+knn.train(train, train_labels)
 
 """
 Après avoir fait l'entrainement, évaluez votre modèle sur 
@@ -54,12 +57,22 @@ predictions = np.array([classifier.predict(x) for x in train])
 classes = np.unique(train_labels)
 train_results = classifier.evaluate(train, train_labels)
 
-print("Résultats :")
+print("Résultats d'Entraînement du Classificateur Naïf Bayésien:")
+print("---------------------------------------------------------")
 print(f"""accuracy : {train_results[0]}""")
 print(f"""precision : {train_results[1]}""")
 print(f"""recall : {train_results[2]}""")
 print(f"""F1_score : {train_results[3]}""")
 print(f"confusion_matrix : \n{train_results[4]}")
+
+knn_train_results = knn.evaluate(train, train_labels)
+print("Résultats d'Entraînement du KNN:")
+print("--------------------------------")
+print(f"confusion_matrix : \n{knn_train_results[1]}")
+print(f"""accuracy : {knn_train_results[2]}""")
+print(f"""precision : {knn_train_results[3]}""")
+print(f"""recall : {knn_train_results[4]}""")
+print(f"""F1_score : {knn_train_results[5]}""")
 
 # Tester votre classifieur
 
