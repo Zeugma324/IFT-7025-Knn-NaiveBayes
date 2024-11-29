@@ -1,6 +1,27 @@
 import numpy as np
 import random
 
+def is_float(string):
+		"""
+		Permet de vérifier si une chaîne de caractères
+		est un nombre à virgule
+
+		Paramètres
+		----------
+		string : str: La chaîne de caractères à vérifier
+
+		Retours
+		-------
+		bool : True si la chaîne est un nombre à virgule, False
+		sinon
+
+		"""
+		try:
+			float(string)
+			return True
+		except ValueError:
+			return False
+
 def load_iris_dataset(train_ratio):
     """Cette fonction a pour but de lire le dataset Iris
 
@@ -166,7 +187,21 @@ def load_abalone_dataset(train_ratio):
         # Pour chaque ligne, crée une liste des caractéristique de l'iris et de son label
         parts = line.split(',')
         # Ajoute les caractéristiques de l'iris à data et son label à labels
-        data.append([float(x) for x in parts[:-1]])
+        if parts[0] == 'M':
+            data.append(
+                 [1, 0, 0] + [float(x) if is_float(x) else x
+                              for x in parts[1:-1]]
+              )
+        elif parts[0] == 'F':
+            data.append(
+                 [0, 1, 0] + [float(x) if is_float(x) else x
+                              for x in parts[1:-1]]
+              )
+        else:
+            data.append(
+                 [0, 0, 1] + [float(x) if is_float(x) else x
+                              for x in parts[1:-1]]
+              )
         labels.append(parts[-1])
     data = np.array(data)
     labels = np.array(labels)
