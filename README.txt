@@ -19,7 +19,28 @@ Pour finir, on retrouve la méthode "evaluate" qui permet de calculer
 les métriques d'évaluation sur un ensemble de données et de labels
 donnés.
 
-1.2
+1.2 Naive Bayes
+
+La classe BayesNaif comprend un constructeur "__init__" qui initialise les 
+éléments nécessaires pour le calcul des probabilités. Elle initialise
+les classes du dataset à None, ainsi que trois dictionnaires : 
+prior pour les probabilités a priori des classes, mean pour les moyennes 
+des attributs par classe, et var pour leurs variances.
+
+On a ensuite la méthode "train", qui est utilisée pour 
+entraîner le modèle. Elle calcule les probabilités a priori, les 
+moyennes et les variances pour chaque classe en se basant sur les données 
+d'entraînement et leurs labels.
+
+La méthode "predict" permet de prédire la classe d'une instance donnée. 
+Elle utilise les informations calculées lors de l'entraînement pour 
+déterminer la probabilité a posteriori de chaque classe. La classe 
+ayant la probabilité maximale est retournée comme résultat.
+
+Enfin, la méthode "evaluate" calcule les métriques d'évaluation 
+(accuracy, précision, rappel, F1-score) et génère une matrice de 
+confusion pour un ensemble de données et de labels donnés.
+
 
 2. Répartition des Tâches
 
