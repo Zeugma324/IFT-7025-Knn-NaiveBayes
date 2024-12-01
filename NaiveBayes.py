@@ -77,8 +77,14 @@ class BayesNaif: #nom de la class à changer
 		return self.classes[np.argmax(posteriors)]
 	
 	def precision_and_recall_and_F1score(self, y_true, y_pred, class_label):
+
+		#calcul des vrais positifs
 		TP = np.sum((y_true == class_label) & (y_pred == class_label))
+
+		#calcul des faux positifs
 		FP = np.sum((y_true != class_label) & (y_pred == class_label))
+
+		#calcul des faux negatifs
 		FN = np.sum((y_true == class_label) & (y_pred != class_label))
 
 		precision = TP / (TP + FP)
@@ -123,20 +129,20 @@ class BayesNaif: #nom de la class à changer
 		#calcluer l'exactitude (accuracy)
 		accuracy = np.mean (exp_pred ==y)
 
+		#initialisation des listes de metriques par classes
 		precision_list, recall_list, F1_score_list = [], [], []
 
+		#pour chaque classe on calcul les metriques et les stockage dans leur liste
 		for classe in self.classes:
 			precision, recall, F1_score = self.precision_and_recall_and_F1score(y, exp_pred, classe)
 			precision_list.append(precision)
 			recall_list.append(recall)
 			F1_score_list.append(F1_score)
 		
+		#on calcule la moyenne pour avoir un resultat unique
 		mean_precision = np.mean(precision_list)
 		mean_recall = np.mean(recall_list)
 		mean_F1_score = np.mean(F1_score_list)
 		confusion_matrix = self.confusion_matrix(y, exp_pred, self.classes)
 
 		return accuracy, mean_precision, mean_recall, mean_F1_score, confusion_matrix
-	
-	# Vous pouvez rajouter d'autres méthodes et fonctions,
-	# il suffit juste de les commenter.
